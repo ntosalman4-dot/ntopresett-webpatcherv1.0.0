@@ -18,25 +18,21 @@ function parseEvents(xhr,onEvent,final=false){
 function upload(file,endpoint,encode,startPct,endPct,label){return new Promise((resolve,reject)=>{
   const x=new XMLHttpRequest();let cursor=0,buffer="",done=null,serverProgress=false,finished=false;
   const fail=(msg)=>{if(finished)return;finished=true;try{x.abort()}catch{}reject(new Error(msg))};
-  const handle=(final)=>{if(finished)return;const chunk=x.responseText.slice(cursor);cursor=x.responseText.length;buffer+=chunk;const parts=buffer.split(/\r?\n/);buffer=final?"":(parts.pop()||"");if(final&&parts.length===0&&x.responseText.trim())parts.push(x.responseText.trim());else if(final&&buffer.trim())parts.push(buffer.trim());
-    for(const line of parts){if(!line.trim())continue;let e;try{e=JSON.parse(line)}catch{fail("Respons server tidak valid.");return}
-      if(e.type==="error"){fail(e.code||e.message||"Server processing error");return}
+  const handle=(final)=>{if(finished)return;const chunk=x.responseText.slice(cursor);cursor=x.responseText.length;buffer+=chunk;let lines=buffer.split(/\r?\n/);if(!final)buffer=lines.pop()||"";else buffer="";
+    for(const line of lines){if(!line.trim())continue;let e;try{e=JSON.parse(line)}catch{fail("Respons server tidak valid.");return}
+      if(e.type==="error"){fail(e.code||"Server processing error");return}
       if(e.type==="progress"){serverProgress=true;const p=Number(e.percent);if(Number.isFinite(p))progress(startPct+(p/100)*(endPct-startPct));say(`${label}: ${e.stage||e.status||"processing"}${Number.isFinite(p)?" · "+Math.round(p)+"%":""}`)}
-      const candidate=e.file_id||e.fileId||e.result?.file_id||e.result?.fileId||e.data?.file_id||e.data?.fileId;
-      if(candidate&&(e.type==="complete"||e.status==="complete"||e.status==="completed"||e.type==="result"||e.type==="complete"))done=candidate;
+      if(e.type==="complete"&&e.file_id)done=e.file_id;
     }
   };
-  x.open("POST",API+endpoint,true);x.timeout=15*60*1000;
+  x.open("POST",API+endpoint,true);x.timeout=0;
   x.upload.onprogress=e=>{if(e.lengthComputable&&!serverProgress){const p=e.loaded/e.total;progress(startPct+p*Math.min(12,endPct-startPct));say(`${label}: upload ${Math.round(p*100)}%`)}};
-  x.upload.onload=()=>{if(!finished){say(`${label}: upload selesai, menunggu server memproses video…`);}};
   x.onprogress=()=>{if((x.getResponseHeader("Content-Type")||"").includes("application/x-ndjson"))try{handle(false)}catch(e){fail(e.message)}};
   x.onload=()=>{if(finished)return;if(x.status<200||x.status>=300){let detail="";try{detail=JSON.parse(x.responseText).detail||""}catch{};fail(detail||`Server menolak request (HTTP ${x.status})`);return}
-    try{if((x.getResponseHeader("Content-Type")||"").includes("application/x-ndjson"))handle(true);else{const j=JSON.parse(x.responseText);done=j.file_id||j.fileId||j.result?.file_id||j.result?.fileId||j.data?.file_id||j.data?.fileId}}catch(e){fail(e.message);return}
+    try{if((x.getResponseHeader("Content-Type")||"").includes("application/x-ndjson"))handle(true);else{const j=JSON.parse(x.responseText);done=j.file_id}}catch(e){fail(e.message);return}
     if(!done){fail("Server tidak mengembalikan file_id.");return}finished=true;resolve(done);
   };
-  x.onerror=()=>fail("Koneksi ke server gagal. Periksa internet atau izin CORS API.");
-  x.ontimeout=()=>fail(`${label}: server tidak merespons dalam 15 menit. Coba lagi dengan video lebih kecil; jika berulang, endpoint HQ perlu diperiksa.`);
-  x.onabort=()=>{};
+  x.onerror=()=>fail("Koneksi ke server gagal.");x.onabort=()=>{};
   const fd=new FormData();fd.append("file",file,"video.mp4");fd.append("tg_id",TG_ID);fd.append("progress","true");if(endpoint==="/upload/")fd.append("encode_video",String(encode));x.send(fd);
 })}
 

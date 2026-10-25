@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nto.presett Web Patcher V1.0.0 Stable</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#07060a;
+  --surface:#100d14;
+  --surface2:#15111b;
+  --surface3:#0c0a10;
+  --line:#2a2630;
+  --line2:#3b3344;
+  --text:#f1edf4;
+  --muted:#807887;
+  --muted2:#5f5866;
+  --purple:#8e4de7;
+  --purple2:#c06cff;
+  --purple-soft:#271535;
+  --glow:#9c55ff;
+}
+html,body{margin:0;min-height:100%;background:transparent;color:var(--text);font-family:Roboto,"Segoe UI",Arial,sans-serif}
+body{position:relative;padding:18px 12px 42px;background:transparent;overflow-x:hidden}
+#uiBackground{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none;filter:saturate(.92) brightness(.72);background:#050406}
+body:before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(5,4,7,.16) 0%,rgba(5,4,7,.38) 48%,rgba(5,4,7,.58) 100%)}
+body:after{content:"";position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 8%,rgba(173,87,255,.20),transparent 42%),linear-gradient(90deg,rgba(0,0,0,.12),transparent 35%,transparent 65%,rgba(0,0,0,.16))}
+.wrap{position:relative;z-index:3;width:min(760px,100%);margin:auto}
+
+/* HERO — inspired by the supplied old UI */
+.hero{position:relative;overflow:hidden;min-height:178px;padding:24px 24px 18px;border:1px solid #302934;border-radius:27px;background:linear-gradient(145deg,rgba(23,18,29,.78) 0%,rgba(13,10,16,.70) 70%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 18px 55px #000b;margin-bottom:13px}
+.hero:before{content:"";position:absolute;width:230px;height:230px;right:-70px;top:-100px;border-radius:50%;background:radial-gradient(circle,#54266d55 0,transparent 68%);pointer-events:none}
+.hero:after{content:"";position:absolute;pointer-events:none}
+.hero-top{position:relative;z-index:1;display:flex;align-items:center;gap:15px}
+.logo{width:72px;height:72px;border-radius:20px;object-fit:cover;box-shadow:0 8px 30px #000c;flex:none}
+.head{min-width:0;flex:1}.brand{font-size:10px;letter-spacing:2.8px;color:#b79bd3;font-weight:900;margin-bottom:7px}.title-row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}.title{font-size:30px;font-weight:900;line-height:1.05;letter-spacing:.1px}.badge{flex:none;font-size:10px;font-weight:900;letter-spacing:1px;color:#d9c9e5;border:1px solid #675d70;background:#17131c;border-radius:10px;padding:6px 9px}.sub{color:#706873;font-size:11px;margin-top:7px}
+.hero-status{position:absolute;right:19px;top:19px;z-index:2;display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:99px;border:1px solid #554064;background:#21152a;color:#c9a7df;font:900 9px Arial,sans-serif;letter-spacing:.8px;box-shadow:inset 0 0 18px #9b4fe61a}.hero-status:before{content:"";width:7px;height:7px;border-radius:50%;background:#a55aff;box-shadow:0 0 9px #a55aff}
+.hero-bottom{position:absolute;left:25px;right:20px;bottom:17px;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px}.copyright{font-size:9px;color:#746c79}.hero-actions{display:flex;gap:7px}.hero-chip{height:39px;min-width:39px;padding:0 11px;display:grid;place-items:center;border:1px solid #302a36;border-radius:13px;background:#151118;color:#a98ab9;font-size:12px;font-weight:900}.hero-chip.version{font-size:9px;color:#9b8ea4}
+
+/* MAIN CONTROL */
+.panel{border:1px solid var(--line);border-radius:25px;background:linear-gradient(145deg,rgba(19,16,22,.76),rgba(13,10,16,.68));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 14px 45px #0008;margin-bottom:13px;overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 13px}.panel-title{font-size:13px;letter-spacing:1.4px;font-weight:900}.panel-note{font-size:8px;color:#746c79;letter-spacing:1px}
+.control{padding:0 20px 19px}.upload-row{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:10px}
+.drop{position:relative;display:flex;align-items:center;gap:14px;min-height:94px;padding:13px 15px;border:1px solid #2a2530;border-radius:17px;background:rgba(11,9,13,.72);cursor:pointer;transition:.2s}.drop:hover{border-color:#714b87;background:#100c13}.drop input{display:none}.pick-icon{width:50px;height:50px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(145deg,#321747,#1c1025);border:1px solid #56356a;color:#d1a6ec;font-size:28px;line-height:1;flex:none}.pick-copy{min-width:0}.pick-title{font-size:16px;font-weight:900}.pick-sub{color:#716975;font-size:10px;margin-top:4px}.file{color:#aaa0ae;font-size:9px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.start{width:100%;min-height:94px;border:1px solid #64378a;border-radius:17px;padding:12px;background:linear-gradient(145deg,#8f40e4,#5d2a91);color:#fff;font-weight:900;font-family:inherit;font-size:12px;letter-spacing:1px;box-shadow:0 9px 25px #712ac733;transition:.2s}.start:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-1px)}.start:disabled{opacity:.35;box-shadow:none}
+
+/* PROCESS */
+.process{padding:0 20px 18px}.process-head{display:flex;justify-content:space-between;align-items:center;margin:2px 0 9px}.process-title{font-size:12px;letter-spacing:1.1px;font-weight:900}.process-note{font-size:8px;color:#625a68}.stage{display:grid;grid-template-columns:1fr 1fr;gap:9px}.s{min-height:76px;padding:13px;border:1px solid #29242f;border-radius:15px;background:rgba(10,8,13,.70);color:#756d7b;font-size:10px}.s b{display:block;color:#bdb3c3;margin-bottom:7px;font-size:10px;letter-spacing:.6px}.s.active{border-color:#74468e;box-shadow:inset 0 0 25px #8f40e414}.s.done{border-color:#4e3a58;color:#c8bdcf;background:#120e16}
+.bar{height:7px;background:#1b1720;border-radius:99px;overflow:hidden;margin-top:10px}.fill{height:100%;width:0;background:linear-gradient(90deg,#7f3bd2,#b760ff);transition:width .12s}.status{min-height:36px;margin-top:8px;font-size:10px;color:#aaa0ad;line-height:1.5;font-weight:700}.log{background:rgba(8,7,11,.68);border:1px solid #211d25;border-radius:12px;padding:9px;max-height:110px;overflow:auto;white-space:pre-wrap;font:9px/1.5 monospace;color:#716979}.ok{color:#c8a8e5}.err{color:#ff9fac}.download{display:none;margin-top:8px;text-align:center}.download a{display:block;text-decoration:none;color:#fff;background:linear-gradient(90deg,#6f32b8,#9349df);border:1px solid #8543ad;border-radius:12px;padding:11px;font-weight:900;font-family:inherit;font-size:10px}
+.tiktok-tools{margin-top:9px;padding:10px;border:1px solid #29242f;border-radius:12px;background:rgba(13,10,16,.68)}.tool-head{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#b9afbf;letter-spacing:.7px}.tool-head span{font-size:7px;color:#8f789a}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.tool-grid a{display:block;text-decoration:none;text-align:center;color:#fff;background:#17111c;border:1px solid #3a2c43;border-radius:10px;padding:9px 6px;font-size:8px;font-weight:900}.tool-grid a:hover{border-color:#75458f;background:#21152a}.tool-note{margin-top:8px;color:#746b7b;font-size:8px;line-height:1.45}.tool-note b{color:#b9afbf}
+.info{display:flex;gap:9px;align-items:flex-start;margin-top:9px;padding:10px 11px;border:1px solid #29242f;border-radius:12px;background:rgba(13,10,16,.68);color:#746b7b;font-size:9px;line-height:1.5}.info strong{color:#b9afbf}.version{text-align:center;color:#5d5561;font-size:8px;margin-top:9px}
+
+/* GUIDE — compact old-style cards */
+.guide{border:1px solid var(--line);border-radius:25px;background:linear-gradient(145deg,rgba(19,16,22,.76),rgba(13,10,16,.68));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 14px 45px #0008;padding:17px 20px}.guide-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.guide-title{font-size:15px;font-weight:900;letter-spacing:.4px}.guide-tag{font-size:8px;letter-spacing:1px;font-weight:900;color:#c09ad8;border:1px solid #4c3857;border-radius:9px;padding:6px 8px}.steps{display:grid;grid-template-columns:1fr 1fr;gap:8px}.step{min-width:0;padding:12px;border:1px solid #28232e;border-radius:14px;background:rgba(11,9,14,.68);display:flex;gap:10px}.num{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#1d1227;color:#bd92d5;font-size:9px;font-weight:900;flex:none}.step b{display:block;font-size:10px;margin-bottom:4px;color:#d5cbd9}.step span{display:block;color:#736a78;font-size:9px;line-height:1.45}.tip{margin-top:9px;padding:10px 11px;border-radius:12px;background:rgba(16,12,20,.68);border:1px solid #2a2330;color:#756c79;font-size:9px;line-height:1.5}.tip b{color:#b68bd0}
+
+
+/* COLLAPSIBLE GUIDE */
+.guide-summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;user-select:none}
+.guide-summary::-webkit-details-marker{display:none}
+.guide-summary::after{content:"⌄";width:30px;height:30px;display:grid;place-items:center;border:1px solid #33283a;border-radius:10px;color:#a883bd;font-size:15px;transition:transform .2s}
+details.guide:not([open]) .guide-summary::after{transform:rotate(-90deg)}
+.guide-body{margin-top:12px}
+
+@media(max-width:600px){body{padding:14px 9px 32px}.hero{min-height:190px;padding:20px 18px 16px;border-radius:23px}.hero-top{gap:12px}.logo{width:60px;height:60px;border-radius:17px}.brand{font-size:8px;letter-spacing:2.2px}.title{font-size:25px}.sub{font-size:10px}.hero-status{right:14px;top:14px;font-size:8px;padding:6px 9px}.hero-bottom{left:18px;right:15px;bottom:14px}.copyright{font-size:8px}.hero-chip{height:34px;min-width:34px;border-radius:11px}.upload-row{grid-template-columns:1fr}.drop{min-height:82px}.start{min-height:56px}.panel-head{padding:16px 18px 11px}.control,.process{padding-left:16px;padding-right:16px}.guide{padding:15px 16px}.steps{grid-template-columns:1fr}.step:last-child{grid-column:auto}}
+@media(max-width:600px){.tool-grid{grid-template-columns:1fr}}
+@media(max-width:390px){.title{font-size:22px}.logo{width:54px;height:54px}.hero{min-height:184px}.stage{grid-template-columns:1fr 1fr}.s{padding:10px}.pick-title{font-size:14px}}
+</style>
+</head>
+<body>
+<video id="uiBackground" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="ui-background.mp4" type="video/mp4"></video>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-status">ACTIVE</div>
+    <div class="hero-top">
+      <img class="logo" src="icons/icon128.png" alt="Nto.presett">
+      <div class="head">
+        <div class="brand">✦ Nto.presett Method ✦</div>
+        <div class="title-row"><div class="title">Web Patcher</div><div class="badge">V1.0.0</div></div>
+        <div class="sub">HQ Method → Encode Video → MP4</div>
+      </div>
+    </div>
+    <div class="hero-bottom">
+      <div class="copyright">© All Copyright By @nto.presett</div>
+      <div class="hero-actions"><div class="hero-chip">◎</div><a class="hero-chip" href="https://www.tiktok.com/" target="_blank" rel="noopener" title="Buka TikTok Web">↗</a></div>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="panel-head"><div class="panel-title">MAIN CONTROL</div><div class="panel-note">LIVE</div></div>
+    <div class="control">
+      <div class="upload-row">
+        <label class="drop" id="drop">
+          <input id="file" type="file" accept="video/*">
+          <div class="pick-icon">＋</div>
+          <div class="pick-copy">
+            <div class="pick-title">Pilih video</div>
+            <div class="pick-sub">Klik sekali untuk memilih file video</div>
+            <div class="file" id="fileName">Belum ada file</div>
+          </div>
+        </label>
+        <button class="start" id="start" disabled>START<br>PROCESSING</button>
+      </div>
+    </div>
+    <div class="process">
+      <div class="process-head"><div class="process-title">PROCESS STATUS</div><div class="process-note" id="stageNote">2 STAGE</div></div>
+      <div class="stage">
+        <div class="s" id="hq"><b>01 · HQ METHOD</b>Menunggu</div>
+        <div class="s" id="enc"><b>02 · ENCODE VIDEO</b>Menunggu</div>
+      </div>
+      <div>
+        <div class="bar"><div class="fill" id="fill"></div></div>
+        <div class="status" id="status">Siap memilih video.</div>
+        <div class="log" id="log"></div>
+        <div class="download" id="download"><a id="downloadLink" download="nto.presett output final.mp4">DOWNLOAD · nto.presett output final.mp4</a></div>
+        <div class="tiktok-tools" id="tiktokTools" style="display:none">
+          <div class="tool-head"><b>TIKTOK UPLOAD</b><span>MANUAL EDIT</span></div>
+          <div class="tool-grid">
+            <a href="https://www.tiktok.com/upload?lang=id-ID" target="_blank" rel="noopener">✦ EDIT SAMPUL / COVER</a>
+            <a href="https://www.tiktok.com/upload?lang=id-ID" target="_blank" rel="noopener">♫ EDIT SOUND / MUSIC</a>
+          </div>
+          <div class="tool-note">Setelah video selesai diproses, upload ke TikTok lalu pilih <b>Sampul</b> dan <b>Sound</b> secara manual. Patcher tidak mengubah pilihan Sound/Cover.</div>
+        </div>
+        <div class="info"><div>✦</div><div><strong>ID akses sudah tersimpan di dalam patcher.</strong><br>Tidak perlu memasukkan Telegram ID secara manual.</div></div>
+        <div class="version">Nto.presett Web Patcher V1.0.0 Stable</div>
+      </div>
+    </div>
+  </section>
+
+  <details class="guide" open>
+    <summary class="guide-summary"><div class="guide-title">GUIDE · CARA PAKAI</div><div class="guide-tag">TUTORIAL</div></summary>
+    <div class="guide-body">
+    <div class="steps">
+      <div class="step"><div class="num">01</div><div><b>Pilih video</b><span>Tekan kotak “Pilih video”, lalu pilih file video yang ingin diproses.</span></div></div>
+      <div class="step"><div class="num">02</div><div><b>Mulai proses</b><span>Tekan <b>START PROCESSING</b>. Patcher akan menjalankan HQ Method lalu Encode Video secara otomatis.</span></div></div>
+      <div class="step"><div class="num">03</div><div><b>Tunggu HQ Method</b><span>Upload dan rendering dilakukan di server. Jangan tutup halaman saat proses berlangsung.</span></div></div>
+      <div class="step"><div class="num">04</div><div><b>Encode Video</b><span>Setelah HQ Method selesai, hasil HQ otomatis dikirim ke Encode Video. Tidak perlu mengatur toggle.</span></div></div>
+      <div class="step"><div class="num">05</div><div><b>Ambil hasil akhir</b><span>Setelah selesai, tekan <b>DOWNLOAD · nto.presett output final.mp4</b> untuk menyimpan video final.</span></div></div>
+      <div class="step"><div class="num">06</div><div><b>Atur Sampul & Sound</b><span>Buka TikTok, upload hasil akhir, lalu pilih <b>Sampul/Cover</b> dan <b>Sound/Music</b> sendiri. Keduanya tetap manual di TikTok.</span></div></div>
+    </div>
+    <div class="tip"><b>Tips:</b> proses bisa memakan waktu karena upload, rendering, dan download dilakukan melalui server. Jika progress masih berjalan, tunggu sampai status <b>DONE</b>.</div>
+    </div>
+  </details>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
