@@ -1,19 +1,17 @@
-Nto.presett Web Patcher — Vercel website
+Nto.presett Web Patcher - Vercel
 
-UPLOAD:
-1. Extract this ZIP on your phone/computer.
-2. Open https://vercel.com and sign in.
-3. Choose Add New -> Project (or Deploy Project).
-4. If prompted to import a Git repository, easiest alternative is use Vercel CLI from a computer, or upload the folder through a supported deployment flow. Vercel dashboard deployment options can vary.
-5. Deploy the folder as a static site; no build command is required. Output/root directory should be this folder.
-6. Open the generated *.vercel.app URL.
+1. Unggah SEMUA isi folder ini ke root repository GitHub.
+2. Pastikan index.html berada di root, bukan folder bertingkat.
+3. Import repository di Vercel, Framework Preset: Other.
+4. Kosongkan Build Command; Output Directory default/root.
+5. Deploy.
 
-FILES:
-- index.html: website UI
-- app.js: video processing client
-- ui-background.mp4 and icons/: assets
+Catatan HQ METHOD:
+Website ini mengirim video ke API pihak ketiga api.kuronaiapp.com. Jika status berhenti di HQ METHOD, penyebabnya dapat berupa server API yang lambat/tidak merespons, CORS, jaringan, atau endpoint /uploaden/ bermasalah. Versi ini memberi batas waktu 15 menit dan pesan yang lebih jelas; ia tidak dapat memperbaiki gangguan pada server API itu sendiri.
 
-IMPORTANT LIMITATIONS:
-- A website cannot run the browser-extension injection hooks from page-hook.js / tiktok-wm.js, nor automatically patch TikTok upload metadata. That functionality requires installing the extension in a supported browser.
-- Video processing calls https://api.kuronaiapp.com. The API must allow CORS requests from your Vercel domain and support Range downloads. If browser console reports CORS/network errors, server-side API configuration is required; deploying the website alone cannot fix it.
-- The original extension has been converted to the website UI and video-processing flow only.
+Logo dan latar belakang memakai file lokal dalam folder icons/ dan ui-background.mp4; unggah semuanya.
+
+Perbaikan tambahan HQ METHOD:
+- Parser stream NDJSON diperbaiki agar baris JSON terakhir tanpa newline tetap diproses. Ini dapat menyebabkan event complete/file_id terlewat sebelumnya.
+- Pengenalan ID hasil diperluas untuk file_id, fileId, dan bentuk nested result/data.
+- Jika server hanya mengirim status queued dan tidak pernah mengirim ID hasil, kemungkinan backend/API masih perlu diperiksa; frontend tidak dapat menebak endpoint polling yang tidak didokumentasikan.
